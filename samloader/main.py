@@ -17,6 +17,8 @@ def main():
     parser.add_argument("-m", "--dev-model", help="device model", required=True)
     parser.add_argument("-r", "--dev-region", help="device region code", required=True)
     subparsers = parser.add_subparsers(dest="command")
+    getfilename = subparsers.add_parser("getfilename", help="get filename")
+    getfilename.add_argument("-v", "--fw-ver", help="firmware version to get file name", required=True)
     dload = subparsers.add_parser("download", help="download a firmware")
     dload.add_argument("-v", "--fw-ver", help="firmware version to download", required=True)
     dload.add_argument("-R", "--resume", help="resume an unfinished download", action="store_true")
@@ -76,6 +78,10 @@ def main():
         with open(args.in_file, "rb") as inf:
             with open(args.out_file, "wb") as outf:
                 crypt.decrypt_progress(inf, outf, key, length)
+    elif args.command == "getfilename":
+        client = fusclient.FUSClient()
+        path, filename, size = getbinaryfile(client, args.fw_ver, args.dev_model, args.dev_region)
+        print(filename)
 
 def initdownload(client, filename):
     req = request.binaryinit(filename, client.nonce)
