@@ -74,6 +74,10 @@ def main():
         print(versionfetch.getlatestver(args.dev_model, args.dev_region))
     elif args.command == "decrypt":
         decrypt_file(args, args.enc_ver, args.in_file, args.out_file)
+    elif args.command == "getfilename":
+        client = fusclient.FUSClient()
+        path, filename, size = getbinaryfile(client, args.fw_ver, args.dev_model, args.dev_region)
+        print(filename)
 
 def decrypt_file(args, version, encrypted, decrypted):
     if version not in [2, 4]:
