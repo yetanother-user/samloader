@@ -16,6 +16,7 @@ def main():
     parser = argparse.ArgumentParser(description="Download and query firmware for Samsung devices.")
     parser.add_argument("-m", "--dev-model", help="device model", required=True)
     parser.add_argument("-r", "--dev-region", help="device region code", required=True)
+    parser.add_argument("-n", "--dev-imei", help="device imei code", required=True)
     subparsers = parser.add_subparsers(dest="command")
     getfilename = subparsers.add_parser("getfilename", help="get filename")
     getfilename.add_argument("-v", "--fw-ver", help="firmware version to get file name", required=True)
@@ -36,7 +37,7 @@ def main():
     args = parser.parse_args()
     if args.command == "download":
         client = fusclient.FUSClient()
-        path, filename, size = getbinaryfile(client, args.fw_ver, args.dev_model, args.dev_region)
+        path, filename, size = getbinaryfile(client, args.fw_ver, args.dev_model, args.dev_imei, args.dev_region)
         out = args.out_file if args.out_file else os.path.join(args.out_dir, filename)
         try:
             dloffset = os.stat(out).st_size if args.resume else 0
@@ -92,8 +93,8 @@ def initdownload(client, filename):
     req = request.binaryinit(filename, client.nonce)
     resp = client.makereq("NF_DownloadBinaryInitForMass.do", req)
 
-def getbinaryfile(client, fw, model, region):
-    req = request.binaryinform(fw, model, region, client.nonce)
+def getbinaryfile(client, fw, model, imei, region):
+    req = request.binaryinform(fw, model, region, imei, client.nonce)
     resp = client.makereq("NF_DownloadBinaryInform.do", req)
     root = ET.fromstring(resp)
     status = int(root.find("./FUSBody/Results/Status").text)
